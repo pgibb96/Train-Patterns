@@ -2,6 +2,7 @@
 import requests
 import time
 import sys
+import config
 
 #Third Party
 from datetime import datetime, date
@@ -53,11 +54,33 @@ class NextTrain():
         # Sending along the necessary info to the next stage
         return [next, date, now]
 
+    def determineTemp(self):
+        key = config.api_key
+        city_id = 4930956
+
+        URL = "http://api.openweathermap.org/data/2.5/weather"
+        PARAMS = {'appid':key,
+                  'id':city_id}
+
+        r = requests.get(URL, PARAMS)
+
+        if r.status_code != requests.codes.ok:
+            print("Error: Bad Request")
+            sys.exit()
+
+        data = r.json()
+
+        conditions = data['weather'][0]['main']
+        conditionsDescriptive = data['weather'][0]['description']
+        currentTemp = int((float(data['main']['temp']) - 273.15) * 9/5 + 32)
+
+        return [conditions, conditionsDescriptive, currentTemp]
 
     def run(self):
         next = self.determineNext()[0]
         today = self.determineNext()[1]
         time = self.determineNext()[2].replace(microsecond=0) #drop microsecond
+        weather = self.determineTemp()
 
         # Converting the string from JSON into datetime type
         nextDate = datetime.strptime(next.split("T")[0], '%Y-%m-%d').date()
@@ -71,6 +94,7 @@ class NextTrain():
             sys.exit()
         else:
             print(f"Next Train at: {next.time()}({difference} left)")
+            print(f"Current Weather: {weather[2]}F and {weather[0]} ({weather[1]})")
 
 # Main Function
 if __name__ == "__main__":
