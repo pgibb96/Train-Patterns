@@ -96,6 +96,8 @@ class NextTrain():
             print(f"Next Train at: {next.time()}({difference} left)")
             print(f"Current Weather: {weather[2]}F and {weather[0]} ({weather[1]})")
 
+        # Add Database Code Below
+
 # Main Function
 if __name__ == "__main__":
     temp = NextTrain()
